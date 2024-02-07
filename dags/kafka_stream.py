@@ -1,4 +1,7 @@
-import json
+from pendulum import datetime
+
+from airflow.decorators import dag, task
+from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 
 
 def get_data():
@@ -38,6 +41,44 @@ def format_data(response):
 
 
 def stream_data():
-    response = get_data()
-    data = format_data(response)
-    data = json.dumps(data, ensure_ascii=False).encode('utf-8').decode()
+    import json
+    import logging
+    import time
+
+    current_time = time.time()
+    i = 0
+
+    while True:
+        if time.time() > current_time + 60:
+            break
+        try:
+            response = get_data()
+            data = format_data(response)
+            data = json.dumps(data, ensure_ascii=False).encode('utf-8').decode()
+
+            yield (
+                json.dumps(i),
+                data
+            )
+            i += 1
+        except Exception as e:
+            logging.error(f'An error occurred while streaming data to kafka: {e}')
+
+
+@dag(
+    start_date=datetime(2024, 2, 7, tz='Asia/Seoul'),
+    schedule='*/30 * * * *',
+    catchup=False
+)
+def kafka_stream():
+    produce_user_data = ProduceToTopicOperator(
+        task_id='produce_user_data',
+        kafka_config_id='kafka_default',
+        topic='users',
+        producer_function=stream_data
+    )
+
+    produce_user_data
+
+
+kafka_stream()
