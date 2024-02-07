@@ -40,3 +40,4 @@ def format_data(response):
 def stream_data():
     response = get_data()
     data = format_data(response)
+    data = json.dumps(data, ensure_ascii=False).encode('utf-8').decode()
