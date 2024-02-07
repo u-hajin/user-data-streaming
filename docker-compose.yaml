@@ -41,6 +41,8 @@ services:
       retries: 5
       start_period: 5s
     restart: always
+    networks:
+      - confluent
 
   redis:
     image: redis:latest
@@ -53,6 +55,8 @@ services:
       retries: 50
       start_period: 30s
     restart: always
+    networks:
+      - confluent
 
   airflow-webserver:
     <<: *airflow-common
@@ -70,6 +74,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - confluent
 
   airflow-scheduler:
     <<: *airflow-common
@@ -85,6 +91,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - confluent
 
   airflow-worker:
     <<: *airflow-common
@@ -106,6 +114,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - confluent
 
   airflow-triggerer:
     <<: *airflow-common
@@ -121,6 +131,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - confluent
 
   airflow-init:
     <<: *airflow-common
@@ -184,6 +196,8 @@ services:
     user: "0:0"
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
+    networks:
+      - confluent
 
   airflow-cli:
     <<: *airflow-common
@@ -196,6 +210,8 @@ services:
       - bash
       - -c
       - airflow
+    networks:
+      - confluent
 
   flower:
     <<: *airflow-common
@@ -215,6 +231,11 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+    networks:
+      - confluent
+
+networks:
+  confluent:
 
 volumes:
   postgres-db-volume:
