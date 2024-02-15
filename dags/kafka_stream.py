@@ -29,7 +29,7 @@ def format_data(response):
     location = response['location']
     data['address'] = (f"{str(location['street']['number'])} {location['street']['name']}"
                        f"{location['city']} {location['state']} {location['country']}")
-    data['postcode'] = location['postcode']
+    data['postcode'] = f"{str(location['postcode'])}"
     data['email'] = response['email']
     data['username'] = response['login']['username']
     data['dob'] = response['dob']['date']

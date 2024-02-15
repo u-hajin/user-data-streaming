@@ -452,7 +452,7 @@ services:
         ipv4_address: 172.28.0.16
 
   cassandra_db:
-    image: cassandra:latest
+    image: bitnami/cassandra:latest
     container_name: cassandra
     hostname: cassandra
     ports:
