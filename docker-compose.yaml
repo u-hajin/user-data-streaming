@@ -42,7 +42,8 @@ services:
       start_period: 5s
     restart: always
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.2
 
   redis:
     image: redis:latest
@@ -56,7 +57,8 @@ services:
       start_period: 30s
     restart: always
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.3
 
   airflow-webserver:
     <<: *airflow-common
@@ -75,7 +77,8 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.4
 
   airflow-scheduler:
     <<: *airflow-common
@@ -92,7 +95,8 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.5
 
   airflow-worker:
     <<: *airflow-common
@@ -115,7 +119,8 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.6
 
   airflow-triggerer:
     <<: *airflow-common
@@ -132,7 +137,8 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.7
 
   airflow-init:
     <<: *airflow-common
@@ -197,7 +203,8 @@ services:
     volumes:
       - ${AIRFLOW_PROJ_DIR:-.}:/sources
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.8
 
   airflow-cli:
     <<: *airflow-common
@@ -211,7 +218,8 @@ services:
       - -c
       - airflow
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.9
 
   flower:
     <<: *airflow-common
@@ -232,7 +240,8 @@ services:
       airflow-init:
         condition: service_completed_successfully
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.10
 
   broker:
     image: confluentinc/cp-kafka:7.5.3
@@ -261,7 +270,8 @@ services:
       # See https://docs.confluent.io/kafka/operations-tools/kafka-tools.html#kafka-storage-sh
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.11
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.5.3
@@ -276,7 +286,8 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.12
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.2-7.5.0
@@ -308,7 +319,8 @@ services:
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.13
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.5.3
@@ -334,7 +346,8 @@ services:
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.14
 
 #  ksqldb-server:
 #    image: confluentinc/cp-ksqldb-server:7.5.3
@@ -421,7 +434,8 @@ services:
       - "9090:8080"
       - "7077:7077"
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.15
 
   spark-worker:
     image: bitnami/spark:latest
@@ -434,7 +448,8 @@ services:
       SPARK_WORKER_MEMORY: 1g
       SPARK_MASTER_URL: spark://spark-master:7077
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.16
 
   cassandra_db:
     image: cassandra:latest
@@ -448,9 +463,18 @@ services:
       - CASSANDRA_USERNAME=cassandra
       - CASSANDRA_PASSWORD=cassandra
     networks:
-      - confluent
+      datapipeline:
+        ipv4_address: 172.28.0.17
 
 networks:
+  datapipeline:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
   confluent:
 
 volumes:
